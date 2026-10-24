@@ -46,7 +46,7 @@ func _physics_process(delta: float) -> void:
 		if watermove:
 			input_dir.y = Input.get_axis("Jump", "ducken")
 	
-		var wants_to_jump = Input.is_action_pressed("Jump")
+		var wants_to_jump = Input.is_action_just_pressed("Jump")
 	
 		if Input.is_action_pressed("ducken"):
 			hurtbox.disabled = true

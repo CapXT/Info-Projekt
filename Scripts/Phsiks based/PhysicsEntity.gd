@@ -22,7 +22,7 @@ const WATER_ACCEL = 600.0
 const WATER_FRICTION = 400.0
 const COYOTE_TIME := 0.1
 
-const JUMP_BUFFER_TIME := 0.03
+const JUMP_BUFFER_TIME := 0.05
 const SWAP_TIMER = 0.5
 
 
