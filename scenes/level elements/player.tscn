@@ -372,10 +372,8 @@ script = ExtResource("1_g2els")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1101220497]
 position = Vector2(0, 1)
 sprite_frames = SubResource("SpriteFrames_tuyoq")
-animation = &"die"
+animation = &"1 for editor"
 autoplay = "idle"
-frame = 4
-frame_progress = 1.0
 
 [node name="hitbox" type="CollisionShape2D" parent="." unique_id=1549573807]
 position = Vector2(0, 4.5)
