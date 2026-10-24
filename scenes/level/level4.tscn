@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://byi2ng2e7di7n" path="res://scenes/level elements/player.tscn" id="2_pjvq8"]
 [ext_resource type="Script" uid="uid://4rk8qhxykqpi" path="res://Scripts/camera_2d.gd" id="3_fh7g5"]
 [ext_resource type="PackedScene" uid="uid://c2lrr205xxw2b" path="res://scenes/level elements/killzone.tscn" id="5_2b5ss"]
-[ext_resource type="PackedScene" uid="uid://cc08ktvwq2fmc" path="res://scenes/level elements/greenslime.tscn" id="6_2b5ss"]
-[ext_resource type="PackedScene" uid="uid://dd71kwjnfe2lg" path="res://scenes/level elements/red_slime.tscn" id="6_gc3wn"]
+[ext_resource type="PackedScene" uid="uid://cc08ktvwq2fmc" path="res://scenes/level elements/enemies/greenslime.tscn" id="6_2b5ss"]
+[ext_resource type="PackedScene" uid="uid://dd71kwjnfe2lg" path="res://scenes/level elements/enemies/red_slime.tscn" id="6_gc3wn"]
 [ext_resource type="PackedScene" uid="uid://f7lohvhcwm6x" path="res://scenes/level elements/portal.tscn" id="6_ta61x"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
@@ -230,7 +230,7 @@ tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Player" parent="tilemaps" unique_id=1139590716 instance=ExtResource("2_pjvq8")]
 z_index = 5
-position = Vector2(-864, 373)
+position = Vector2(-608, 98)
 
 [node name="Camera2D" type="Camera2D" parent="tilemaps/Player" unique_id=1209672904]
 position = Vector2(1, -14)
@@ -257,10 +257,12 @@ position = Vector2(-191, 169)
 shape = SubResource("WorldBoundaryShape2D_j7e35")
 
 [node name="exit" parent="." unique_id=1044100374 instance=ExtResource("6_ta61x")]
+visible = false
 position = Vector2(-891, 360)
 script = null
 
 [node name="enter" parent="." unique_id=1287096067 instance=ExtResource("6_ta61x")]
+visible = false
 position = Vector2(-1837, -729)
 
 [node name="red_slime" parent="." unique_id=412518279 instance=ExtResource("6_gc3wn")]

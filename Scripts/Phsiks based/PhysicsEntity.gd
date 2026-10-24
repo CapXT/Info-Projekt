@@ -48,6 +48,8 @@ var is_alive = true
 var accel = ACCEL_NORMAL
 var friction = FRICTION_NORMAL
 
+var run_physics = true
+
 @export var stompable = true
 @export var boostable = true
 # Tile Definitionen 
@@ -234,6 +236,12 @@ func check_enemy_stomp():
 	return false
 
 func die():
+	is_alive = false
+	run_physics = false
+	await get_tree().create_timer(0.5).timeout
+	get_tree().reload_current_scene()
+	
+func die_fall():
 	is_alive = false
 	await get_tree().create_timer(0.5).timeout
 	get_tree().reload_current_scene()
