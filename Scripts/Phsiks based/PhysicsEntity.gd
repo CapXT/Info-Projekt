@@ -1,19 +1,28 @@
 extends CharacterBody2D
+class_name PhysicsEntity
 
 # Physik-Konstanten
-var jump_speed = 1
+const jump_speed = 1.5
 const SPEED = 190.0 
-var JUMP_VELOCITY = -400.0 * jump_speed 
+const JUMP_VELOCITY = -320.0 * jump_speed 
+
 const ACCEL_NORMAL = 1000.0  
-const FRICTION_NORMAL = 1000.0
-const ACCEL_ICE = 400.0
-const FRICTION_ICE = 50.0
+const FRICTION_NORMAL = 3000.0
+
+const ACCEL_ICE = 1000.0
+const FRICTION_ICE = 200.0
+
+const ACCEL_AIR = 1000.0
+const FRICTION_AIR = 1000.0
+
 const WATER_GRAVITY = 300.0
 const WATER_SPEED = 120.0
 const WATER_ACCEL = 600.0
+
 const WATER_FRICTION = 400.0
 const COYOTE_TIME := 0.1
-const JUMP_BUFFER_TIME := 0.03
+
+const JUMP_BUFFER_TIME := 0.05
 const SWAP_TIMER = 0.5
 
 
@@ -23,8 +32,8 @@ var icemove: bool = false
 var speed_multiplier := 1.0
 var coyote_timer := 0.0
 var jump_buffer_timer := 0.0
-var was_on_ice := false
 var was_in_water := false
+
 var air_1 = false
 var air_2 = false
 var air_3 = false
@@ -33,7 +42,13 @@ var swap_timer1 := 0.0
 var swap_timer2 := 0.0
 var swap_timer3 := 0.0
 var swap_timer4 := 0.0
+
 var is_alive = true
+
+var accel = ACCEL_NORMAL
+var friction = FRICTION_NORMAL
+
+var run_physics = true
 
 @export var stompable = true
 @export var boostable = true
@@ -94,12 +109,10 @@ func update_timers(delta,wants_to_jump):
 	else:
 		jump_buffer_timer = max(jump_buffer_timer - delta, 0.0)
 
-
 @onready var tilemaps = [
 	get_tree().current_scene.find_child("tiles", true, false) if get_tree().current_scene else null,
 	get_tree().current_scene.find_child("visuals", true, false) if get_tree().current_scene else null
 ].filter(func(tm): return tm != null) 
-
 
 func apply_physics(delta: float, input_dir: Vector2, wants_to_jump: bool):
 	update_timers(delta, wants_to_jump)
@@ -108,15 +121,18 @@ func apply_physics(delta: float, input_dir: Vector2, wants_to_jump: bool):
 		velocity.y = JUMP_VELOCITY
 		jump_buffer_timer = 0.0
 		coyote_timer = 0.0
-		was_on_ice = icemove
+		
 
 	if watermove:
 		velocity.x = move_toward(velocity.x, input_dir.x * WATER_SPEED, WATER_ACCEL * delta)
 		velocity.y = move_toward(velocity.y, input_dir.y * WATER_SPEED, WATER_ACCEL * delta)
 	else:
-		var use_ice = icemove or (not is_on_floor() and was_on_ice)
-		var accel = ACCEL_ICE if use_ice else ACCEL_NORMAL
-		var friction = FRICTION_ICE if use_ice else FRICTION_NORMAL
+		if is_on_floor():
+			accel = ACCEL_ICE if icemove else ACCEL_NORMAL
+			friction = FRICTION_ICE if icemove else FRICTION_NORMAL
+		else:
+			accel =ACCEL_AIR
+			friction = FRICTION_AIR
 		var target_x = input_dir.x * SPEED * speed_multiplier
 		var force = (accel if input_dir.x != 0 else friction) * delta
 		
@@ -141,21 +157,14 @@ func apply_physics(delta: float, input_dir: Vector2, wants_to_jump: bool):
 	move_and_slide()
 	update_tile_state()
 	handle_water_exit()
-	
-
 
 
 func apply_gravity(delta):
-	var grav = get_gravity() * delta * jump_speed 
+	var grav = get_gravity() * delta * jump_speed
 	
 	if watermove:
 		velocity.y += WATER_GRAVITY * delta
 	else:
-		if velocity.y > 0:
-			jump_speed = 1.5
-		else:
-			jump_speed = 1
-		
 		
 		if air_2:
 			velocity.x += grav.y
@@ -165,7 +174,7 @@ func apply_gravity(delta):
 		
 		if not is_on_floor():
 			if air_1 or swap_timer1 > 0.0:
-				velocity.y -= grav.y * 0.5
+				velocity.y -= grav.y * 0.2
 			elif air_3 or swap_timer3 > 0.0:
 				velocity.y += grav.y * 3.0
 			elif air_2 or air_4:
@@ -175,43 +184,40 @@ func apply_gravity(delta):
 		
 		
 func update_tile_state():
-	icemove = false
 	watermove = false
+	icemove = false
 	air_1 = false
 	air_2 = false
 	air_3 = false
 	air_4 = false
-	check_tiles_at_position(global_position + Vector2(0, 10))
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collider = collision.get_collider()
-		if collider is TileMap:
-			var tile_pos = collider.local_to_map(collider.to_local(collision.get_position() - collision.get_normal() * 2))
-			handle_tile(collider.get_cell_atlas_coords(tile_pos))
+	
+	check_tiles_at_position(global_position)
+	check_tiles_at_down(global_position+ Vector2(0,15))
 
 func check_tiles_at_position(pos):
 	for tm in tilemaps:
 		if tm: handle_tile(tm.get_cell_atlas_coords(tm.local_to_map(tm.to_local(pos))))
+		
+func check_tiles_at_down(pos):
+	for tm in tilemaps:
+		if tm: handle_tile_down(tm.get_cell_atlas_coords(tm.local_to_map(tm.to_local(pos))))
 
 func handle_tile(atlas_coords):
+	if atlas_coords in water_tiles: watermove = true
+	if atlas_coords in air_1_tiles: air_1 = true
+	if atlas_coords in air_2_tiles: air_2 = true
+	if atlas_coords in air_3_tiles: air_3 = true
+	if atlas_coords in air_4_tiles: air_4 = true
+	if atlas_coords in spike_tiles: self.die()
+	if atlas_coords in tj:
+		if velocity.y > 400:
+			velocity.y = -velocity.y
+		else:
+			velocity.y = -400
+
+func handle_tile_down(atlas_coords):
 	if atlas_coords in ice_tiles: 
 		icemove = true
-	if atlas_coords in water_tiles: 
-		watermove = true
-	if atlas_coords in air_1_tiles: 
-		air_1 = true
-	if atlas_coords in air_2_tiles: 
-		air_2 = true
-	if atlas_coords in air_3_tiles: 
-		air_3 = true
-	if atlas_coords in air_4_tiles: 
-		air_4 = true		
-	if atlas_coords in spike_tiles: 
-		self.die()
-	if atlas_coords in tj:
-		if velocity.y >400 :
-			velocity.y = -velocity.y +velocity.y*0.2
-		else:velocity.y =-400
 
 func handle_water_exit():
 	if was_in_water and not watermove and velocity.y != 0: velocity.y = -300
@@ -230,6 +236,12 @@ func check_enemy_stomp():
 	return false
 
 func die():
+	is_alive = false
+	run_physics = false
+	await get_tree().create_timer(0.5).timeout
+	get_tree().reload_current_scene()
+	
+func die_fall():
 	is_alive = false
 	await get_tree().create_timer(0.5).timeout
 	get_tree().reload_current_scene()

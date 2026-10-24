@@ -38,16 +38,15 @@ func check_enemy_collisions():
 
 
 func _physics_process(delta: float) -> void:
-	if is_alive:
-		if not input_enabled: return
 
+		if not input_enabled: return
 
 		var input_dir = Vector2.ZERO
 		input_dir.x = Input.get_axis("goleft", "goright")
 		if watermove:
 			input_dir.y = Input.get_axis("Jump", "ducken")
 	
-		var wants_to_jump = Input.is_action_pressed("Jump")
+		var wants_to_jump = Input.is_action_just_pressed("Jump")
 	
 		if Input.is_action_pressed("ducken"):
 			hurtbox.disabled = true
@@ -55,10 +54,13 @@ func _physics_process(delta: float) -> void:
 		else:
 			hurtbox.disabled = false
 			speed_multiplier = 1.0
-		apply_physics(delta, input_dir, wants_to_jump)
+		
+		if run_physics:
+			apply_physics(delta, input_dir, wants_to_jump)
+			check_enemy_stomp()
 		handle_animation(input_dir.x)
-		check_enemy_stomp()
-	else: animated_sprite.play("die")
+		
+		
 func handle_animation(direction_x):
 	if direction_x != 0:
 		animated_sprite.flip_h = direction_x < 0
@@ -72,7 +74,8 @@ func handle_animation(direction_x):
 		
 	elif Input.is_action_pressed("ducken"): anim = "duck"
 	elif direction_x != 0: anim = "run"
-	
+	if not is_alive:
+		anim = "die"
 	animated_sprite.play(anim)
 
 func disable_input_for(seconds: float) -> void:
@@ -82,7 +85,14 @@ func disable_input_for(seconds: float) -> void:
 
 func die():
 	is_alive = false
-	await get_tree().create_timer(0.4).timeout
+	run_physics = false
+	var tree = get_tree()
+	await get_tree().create_timer(0.5).timeout
+	tree.reload_current_scene()
+
+func die_fall():
+	is_alive = false
+	await get_tree().create_timer(0.5).timeout
 	get_tree().reload_current_scene()
 
 func portal_animation():

@@ -27,6 +27,7 @@ Settings="*uid://nfc5oyytmleo"
 
 window/size/mode=2
 window/stretch/mode="viewport"
+window/stretch/scale_mode="integer"
 
 [dotnet]
 
