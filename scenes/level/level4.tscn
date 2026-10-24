@@ -230,7 +230,7 @@ tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Player" parent="tilemaps" unique_id=1139590716 instance=ExtResource("2_pjvq8")]
 z_index = 5
-position = Vector2(-608, 98)
+position = Vector2(-707, -320)
 
 [node name="Camera2D" type="Camera2D" parent="tilemaps/Player" unique_id=1209672904]
 position = Vector2(1, -14)
@@ -257,12 +257,10 @@ position = Vector2(-191, 169)
 shape = SubResource("WorldBoundaryShape2D_j7e35")
 
 [node name="exit" parent="." unique_id=1044100374 instance=ExtResource("6_ta61x")]
-visible = false
 position = Vector2(-891, 360)
 script = null
 
 [node name="enter" parent="." unique_id=1287096067 instance=ExtResource("6_ta61x")]
-visible = false
 position = Vector2(-1837, -729)
 
 [node name="red_slime" parent="." unique_id=412518279 instance=ExtResource("6_gc3wn")]

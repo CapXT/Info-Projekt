@@ -174,7 +174,7 @@ func apply_gravity(delta):
 		
 		if not is_on_floor():
 			if air_1 or swap_timer1 > 0.0:
-				velocity.y -= grav.y * 0.5
+				velocity.y -= grav.y * 0.2
 			elif air_3 or swap_timer3 > 0.0:
 				velocity.y += grav.y * 3.0
 			elif air_2 or air_4:
