@@ -2,9 +2,9 @@ extends CharacterBody2D
 class_name PhysicsEntity
 
 # Physik-Konstanten
-const jump_speed = 1.5
+const jump_speed = 1.3
 const SPEED = 190.0 
-const JUMP_VELOCITY = -320.0 * jump_speed 
+const JUMP_VELOCITY = -350.0 * jump_speed 
 
 const ACCEL_NORMAL = 1000.0  
 const FRICTION_NORMAL = 3000.0
@@ -13,7 +13,7 @@ const ACCEL_ICE = 1000.0
 const FRICTION_ICE = 150.0
 
 const ACCEL_AIR = 1000.0
-const FRICTION_AIR = 1000.0
+const FRICTION_AIR = 500.0
 
 const WATER_GRAVITY = 300.0
 const WATER_SPEED = 120.0
@@ -118,11 +118,11 @@ func apply_physics(delta: float, input_dir: Vector2, wants_to_jump: bool):
 	update_timers(delta, wants_to_jump)
 	
 	if not watermove and jump_buffer_timer > 0.0 and (is_on_floor() or coyote_timer > 0.0):
+		
 		velocity.y = JUMP_VELOCITY
 		jump_buffer_timer = 0.0
 		coyote_timer = 0.0
 		
-
 	if watermove:
 		velocity.x = move_toward(velocity.x, input_dir.x * WATER_SPEED, WATER_ACCEL * delta)
 		velocity.y = move_toward(velocity.y, input_dir.y * WATER_SPEED, WATER_ACCEL * delta)
@@ -180,7 +180,15 @@ func apply_gravity(delta):
 			elif air_2 or air_4:
 				pass 
 			else:
-				velocity.y += grav.y
+				if not is_on_floor():
+					var current_grav = grav.y
+			
+					if velocity.y < 0 and not Input.is_action_pressed("Jump"):
+						current_grav *= 2.5 
+					elif velocity.y > 0:
+						current_grav *= 1.4 
+				
+					velocity.y += current_grav
 		
 		
 func update_tile_state():
@@ -234,7 +242,7 @@ func check_enemy_stomp():
 			if collision.get_normal().dot(Vector2.UP) > 0.5:
 				if collider.has_method("die"):
 					collider.die()
-				velocity.y = JUMP_VELOCITY * 0.8 
+				velocity.y = JUMP_VELOCITY 
 				return true
 	return false
 
